@@ -9,6 +9,7 @@ import { FeeManagement } from './components/Finance/FeeManagement';
 import { AttendanceTracking } from './components/Attendance/AttendanceTracking';
 import { LibraryManagement } from './components/Library/LibraryManagement';
 import { Reports } from './components/Reports/Reports';
+import { TeacherManagement } from './components/Teachers/TeacherManagement';
 
 function App() {
   const { user, login, logout, loading } = useAuth();
@@ -35,6 +36,8 @@ function App() {
         return <Dashboard user={user} />;
       case 'students':
         return <StudentManagement />;
+      case 'teachers':
+        return <TeacherManagement />;
       case 'academic':
         return <AcademicRecords />;
       case 'fees':

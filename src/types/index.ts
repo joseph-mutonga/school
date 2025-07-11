@@ -33,6 +33,8 @@ export interface Teacher {
   email: string;
   phone: string;
   subject: string;
+  role?: string;
+  department?: string;
   classes: string[];
   dateJoined: string;
   status: 'active' | 'inactive';

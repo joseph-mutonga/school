@@ -146,11 +146,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     switch (user.role) {
       case 'admin':
         return [
+          { action: 'Academic Performance Review', detail: 'Mr. Nzuki submitted Form 4 Mathematics results', time: '1 hour ago' },
           { action: 'New student admission', detail: 'James Mwangi - Form 4 East', time: '2 hours ago' },
+          { action: 'Staff Activity', detail: 'Mrs. Kama updated Computer Studies curriculum', time: '3 hours ago' },
           { action: 'Fee payment received', detail: 'KES 20,000 from Sarah Njeri', time: '4 hours ago' },
-          { action: 'New teacher registered', detail: 'Mary Wanjiku - Mathematics', time: '1 day ago' },
-          { action: 'Library book issued', detail: 'Advanced Mathematics to David Kipchoge', time: '2 days ago' },
-          { action: 'Principal meeting scheduled', detail: 'Staff meeting with Joseph Maina', time: '3 days ago' }
+          { action: 'Library Update', detail: 'Advanced Mathematics issued to David Kipchoge', time: '5 hours ago' },
+          { action: 'Attendance Report', detail: 'Madam Florence marked Form 2 South attendance', time: '6 hours ago' },
+          { action: 'Staff Meeting', detail: 'Mr. Mushangi submitted History department report', time: '1 day ago' }
         ];
       case 'teacher':
         return [
@@ -250,6 +252,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 <button className="p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <Library className="w-5 h-5 text-purple-500 mb-2" />
                   <p className="text-sm font-medium text-gray-900">Issue Book</p>
+                </button>
+                <button className="p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Calendar className="w-5 h-5 text-indigo-500 mb-2" />
+                  <p className="text-sm font-medium text-gray-900">View All Activities</p>
+                </button>
+                <button className="p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <BookOpen className="w-5 h-5 text-pink-500 mb-2" />
+                  <p className="text-sm font-medium text-gray-900">Staff Records</p>
                 </button>
               </>
             )}
