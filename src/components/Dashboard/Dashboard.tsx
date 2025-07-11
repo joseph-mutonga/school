@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Users, 
   BookOpen, 
@@ -10,30 +11,40 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { User, DashboardStats } from '../../types';
-import { mockStudents, mockTeachers, mockBooks, mockFeePayments, mockAttendance, mockBookIssues } from '../../utils/mockData';
+import { reportsAPI } from '../../utils/api';
 
 interface DashboardProps {
   user: User;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
-  // Calculate dashboard statistics
-  const stats: DashboardStats = {
-    totalStudents: mockStudents.length,
-    totalTeachers: mockTeachers.length,
-    totalBooks: mockBooks.reduce((sum, book) => sum + book.totalCopies, 0),
-    feeCollection: mockFeePayments.reduce((sum, payment) => sum + payment.amount, 0),
-    presentToday: mockAttendance.filter(record => 
-      record.date === new Date().toISOString().split('T')[0] && record.status === 'present'
-    ).length,
-    absentToday: mockAttendance.filter(record => 
-      record.date === new Date().toISOString().split('T')[0] && record.status === 'absent'
-    ).length,
-    booksIssued: mockBookIssues.filter(issue => issue.status === 'issued').length,
-    overdueBooks: mockBookIssues.filter(issue => 
-      issue.status === 'issued' && new Date(issue.dueDate) < new Date()
-    ).length,
-  };
+  const [stats, setStats] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await reportsAPI.getDashboardReport();
+        if (response.success) {
+          setStats(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   const getWelcomeMessage = () => {
     const hour = new Date().getHours();
@@ -48,7 +59,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     const baseCards = [
       {
         title: 'Total Students',
-        value: stats.totalStudents,
+        value: stats.totalStudents || 0,
         icon: Users,
         color: 'bg-blue-500',
         change: '+5.2%'
@@ -61,21 +72,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           ...baseCards,
           {
             title: 'Total Teachers',
-            value: stats.totalTeachers,
+            value: stats.totalTeachers || 0,
             icon: BookOpen,
             color: 'bg-green-500',
             change: '+2.1%'
           },
           {
             title: 'Fee Collection',
-            value: `KES ${stats.feeCollection.toLocaleString()}`,
+            value: `KES ${(stats.todayCollection || 0).toLocaleString()}`,
             icon: DollarSign,
             color: 'bg-yellow-500',
             change: '+12.5%'
           },
           {
             title: 'Books in Library',
-            value: stats.totalBooks,
+            value: stats.totalBooks || 0,
             icon: Library,
             color: 'bg-purple-500',
             change: '+8.3%'
@@ -86,14 +97,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           ...baseCards,
           {
             title: 'Present Today',
-            value: stats.presentToday,
+            value: stats.todayPresent || 0,
             icon: CheckCircle,
             color: 'bg-green-500',
             change: '85%'
           },
           {
             title: 'Absent Today',
-            value: stats.absentToday,
+            value: stats.todayAbsent || 0,
             icon: AlertCircle,
             color: 'bg-red-500',
             change: '15%'
@@ -104,14 +115,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           ...baseCards,
           {
             title: 'Fee Collection',
-            value: `KES ${stats.feeCollection.toLocaleString()}`,
+            value: `KES ${(stats.todayCollection || 0).toLocaleString()}`,
             icon: DollarSign,
             color: 'bg-yellow-500',
             change: '+12.5%'
           },
           {
             title: 'Outstanding Fees',
-            value: `KES ${mockStudents.reduce((sum, student) => sum + student.feeBalance, 0).toLocaleString()}`,
+            value: `KES ${(stats.totalOutstanding || 0).toLocaleString()}`,
             icon: TrendingUp,
             color: 'bg-orange-500',
             change: '-3.2%'
@@ -122,14 +133,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           ...baseCards,
           {
             title: 'Books Issued',
-            value: stats.booksIssued,
+            value: stats.booksIssued || 0,
             icon: Library,
             color: 'bg-purple-500',
             change: '+4.7%'
           },
           {
             title: 'Overdue Books',
-            value: stats.overdueBooks,
+            value: stats.overdueBooks || 0,
             icon: AlertCircle,
             color: 'bg-red-500',
             change: '-1.2%'

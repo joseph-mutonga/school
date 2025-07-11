@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { GraduationCap, Eye, EyeOff } from 'lucide-react';
 
 interface LoginProps {
-  onLogin: (username: string, password: string) => boolean;
+  onLogin: (username: string, password: string) => Promise<boolean>;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -17,10 +17,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setError('');
     setLoading(true);
 
-    const success = onLogin(username, password);
+    try {
+      const success = await onLogin(username, password);
     
-    if (!success) {
-      setError('Invalid username or password');
+      if (!success) {
+        setError('Invalid username or password');
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
     }
     
     setLoading(false);
