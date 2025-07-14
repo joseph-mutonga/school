@@ -1,53 +1,44 @@
 import { useState, useEffect } from 'react';
 import { User } from '../types';
-import { authAPI, getAuthToken } from '../utils/api';
+import { mockUsers } from '../utils/mockData';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getAuthToken();
-    if (token) {
-      // Verify token and get user profile
-      authAPI.getProfile()
-        .then(response => {
-          if (response.success) {
-            setUser(response.data);
-          }
-        })
-        .catch(() => {
-          // Token is invalid, remove it
-          localStorage.removeItem('authToken');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
+    // Check if user is stored in localStorage
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+      } catch (error) {
+        localStorage.removeItem('currentUser');
+      }
     }
+    setLoading(false);
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    try {
-      const response = await authAPI.login(username, password);
-      if (response.success) {
-        setUser(response.data.user);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Check against mock users
+    const foundUser = mockUsers.find(u => u.username === username);
+    
+    if (foundUser && password === 'password') {
+      setUser(foundUser);
+      localStorage.setItem('currentUser', JSON.stringify(foundUser));
+      return true;
     }
+    
+    return false;
   };
 
   const logout = async () => {
-    try {
-      await authAPI.logout();
-    } finally {
-      setUser(null);
-    }
+    setUser(null);
+    localStorage.removeItem('currentUser');
   };
 
   return { user, login, logout, loading };
